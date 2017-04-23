@@ -14,7 +14,7 @@ public class BrickFactory
 	// by the factory 
 	public BrickFactory(int dropAreaWidth, int xOffset)
 	{
-		_numberOfBricks = 3;
+		_numberOfBricks = 4;
 		_dropAreaWidth = dropAreaWidth;
 		_xOffset = xOffset;
 	}
@@ -39,6 +39,9 @@ public class BrickFactory
 			break;
 		case 2:
 			brick = new BlueBrick(new Position(dropPosition, 0));
+			break;
+		case 3:
+			brick = new YellowBrick(new Position(dropPosition, 0));
 			break;
 		default:
 			throw new Exception("It seems that something went wrong by generating a proper brick index");

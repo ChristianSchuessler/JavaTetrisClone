@@ -35,7 +35,7 @@ public class Main extends JPanel
         JFrame frame = new JFrame("Chris-Tetris");
         Main game = new Main();
         frame.add(game);
-        frame.setSize(300, 400);
+        frame.setSize(300, 600);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
        

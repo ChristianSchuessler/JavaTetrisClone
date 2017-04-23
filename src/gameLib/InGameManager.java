@@ -21,7 +21,7 @@ public class InGameManager implements KeyListener, IBrickMoveListener
 		_brickDeletionList = new ArrayList<Brick>();
     	_brickFactory = new BrickFactory(160, 20);
     	_bricks = new ArrayList<Brick>();
-    	_brickField = new BrickField(new Position(20, 20), 220, 300);
+    	_brickField = new BrickField(new Position(20, 20), 220, 500);
     	_brickDeleter = new BrickRowDeleter(220);
     	_newBrick = null;
     	addNewBrick();
@@ -32,7 +32,7 @@ public class InGameManager implements KeyListener, IBrickMoveListener
         Graphics2D g2d = (Graphics2D) g;
         
         updateBricks();
-        g2d.drawRect(20, 20, 220, 300);
+        g2d.drawRect(20, 20, 220, 500);
         for(Brick brick : _bricks)
         {
         	brick.draw(g2d);
