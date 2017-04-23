@@ -3,6 +3,8 @@ package gameLib;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import gameLib.Position;
@@ -21,6 +23,7 @@ public class Brick
 	protected int _twiddleState = 0;
 	
 	protected static int _rectSize = 20;
+	private IntegerComparator integerComparator;
 	
 	public static int getRectSize()
 	{
@@ -60,6 +63,81 @@ public class Brick
 			for(IBrickMoveListener listener : _moveListeners)
 			{
 				listener.disappeared(this);
+			}
+		}
+		
+		collapseTilesInYDirection();
+	}
+	
+	/**
+	 * this method collapse tiles in y direction after one tile was removed
+	 * this prevents space between tiles after one was removed
+	 **/
+	private void collapseTilesInYDirection()
+	{
+		// sort according to x position
+		HashMap<Integer, ArrayList<Position>> xCoordToPositions = new HashMap<Integer, ArrayList<Position>>();
+		
+		for(Position position : _positions)
+		{
+			int xCoord = position.x;
+			
+			ArrayList<Position> selectedPositions = xCoordToPositions.get(xCoord);
+			
+			if(selectedPositions == null)
+			{
+				selectedPositions = new ArrayList<Position>();
+				xCoordToPositions.put(xCoord, selectedPositions);
+			}
+			selectedPositions.add(position);
+			
+		}
+		
+		// collapse all positions in y order
+		boolean positionChanged = false;
+		for(ArrayList<Position> sortedPositions : xCoordToPositions.values())
+		{
+			integerComparator = new IntegerComparator();
+			sortedPositions.sort(integerComparator);
+			
+			Position bottomPosition = sortedPositions.get(0);
+			sortedPositions.remove(0);
+			
+		
+			for(Position pos : sortedPositions)
+			{
+				pos.y = bottomPosition.y - Brick.getRectSize();
+				bottomPosition = pos;
+				positionChanged = true;
+			}
+		}
+		
+		// some bricks "falled" so inform all listener that they did stopped again
+		if(positionChanged == true)
+		{
+			for(IBrickMoveListener listener : _moveListeners)
+			{
+				listener.stopped(this);
+			}
+		}
+	}
+	
+	public class IntegerComparator implements Comparator<Position>
+	{
+		@Override
+		public int compare(Position firstPos, Position secondPos) 
+		{			
+			if(firstPos.y > secondPos.y)
+			{
+				return -1;
+			}
+			else if (firstPos.y > secondPos.y)
+			{
+				return 1;
+			}
+			else
+			{
+				return 0;
 			}
 		}
 	}
