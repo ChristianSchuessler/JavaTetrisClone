@@ -28,20 +28,23 @@ public class Main extends JPanel
     	this.addKeyListener(_gameManager);
         this.setFocusable(true);
         this.requestFocusInWindow();
+        
+        this.setName("Chris-Tetris");
     }
 
     public static void main(String[] args) throws Exception 
     {
-        JFrame frame = new JFrame("Chris-Tetris");
-        Main game = new Main();
-        frame.add(game);
-        frame.setSize(300, 600);
-        frame.setVisible(true);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+       JFrame frame = new JFrame("Chris-Tetris");
+        
+       Main game = new Main();
+       frame.add(game);
+       frame.setSize(300, 600);
+       frame.setVisible(true);
+       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
        
         while (true) 
         {
-            game.repaint();
+        	game.repaint();
             Thread.sleep(10);
         }
     }

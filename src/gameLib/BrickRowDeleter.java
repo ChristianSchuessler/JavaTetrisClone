@@ -15,11 +15,13 @@ public class BrickRowDeleter implements IBrickMoveListener
 	
 	private int _brickTilesInRow;
 	private ArrayList<Brick> _bricks;
+	private int _numberOfDeletedRows;
 
 	public BrickRowDeleter(int fieldWidth)
 	{
 		_brickTilesInRow = fieldWidth / Brick.getRectSize();
 		_bricks = new ArrayList<Brick>();
+		_numberOfDeletedRows = 0;
 	}
 	
 	@Override
@@ -68,6 +70,9 @@ public class BrickRowDeleter implements IBrickMoveListener
 		cleanTileMap(tileMap);
 	}
 	
+	/*
+	 * this methods checks the complete tile map and clean rows up if necessary
+	 */
 	private void cleanTileMap(Map<Integer, ArrayList<Tile>> tileMap)
 	{
 		Iterator<ArrayList<Tile>> tileRowsIt = tileMap.values().iterator();
@@ -76,9 +81,11 @@ public class BrickRowDeleter implements IBrickMoveListener
 		{
 			ArrayList<Tile> currentRow = tileRowsIt.next();
 			
+			// row is full
 			if(currentRow.size() >=_brickTilesInRow)
 			{
 				deleteTilesInRow(currentRow);
+				_numberOfDeletedRows++;
 			}
 		}
 		
@@ -90,6 +97,11 @@ public class BrickRowDeleter implements IBrickMoveListener
 		{
 			tile.brick.removePosition(tile.position);	
 		}
+	}
+	
+	public int getNumberOfDeletedRows()
+	{
+		return _numberOfDeletedRows;
 	}
 
 	@Override

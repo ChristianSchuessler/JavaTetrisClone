@@ -6,7 +6,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 
-public class InGameManager implements KeyListener, IBrickMoveListener
+public class InGameManager implements KeyListener, IBrickMoveListener, IGameOverListener
 {
 	private ArrayList<Brick> _bricks;
 	private ArrayList<Brick> _brickDeletionList;
@@ -15,15 +15,21 @@ public class InGameManager implements KeyListener, IBrickMoveListener
 	private Brick _selectedBrick;
 	private Brick _newBrick;
 	private BrickRowDeleter _brickDeleter;
+	private boolean _runGame;
 	
 	public InGameManager()
 	{
 		_brickDeletionList = new ArrayList<Brick>();
     	_brickFactory = new BrickFactory(160, 20);
     	_bricks = new ArrayList<Brick>();
+    	
     	_brickField = new BrickField(new Position(20, 20), 220, 500);
+    	_brickField.registerGameOverListener(this);
+    	
     	_brickDeleter = new BrickRowDeleter(220);
     	_newBrick = null;
+    	
+    	_runGame = true;
     	addNewBrick();
 	}
 	
@@ -31,12 +37,20 @@ public class InGameManager implements KeyListener, IBrickMoveListener
     {
         Graphics2D g2d = (Graphics2D) g;
         
-        updateBricks();
-        g2d.drawRect(20, 20, 220, 500);
-        for(Brick brick : _bricks)
+        if(_runGame)
         {
-        	brick.draw(g2d);
-        	brick.moveAttempt();
+            updateBricks();
+            g2d.drawRect(20, 20, 220, 500);
+            for(Brick brick : _bricks)
+            {
+            	brick.draw(g2d);
+            	brick.moveAttempt();
+            }
+        }
+        else
+        {
+        	 g2d.drawString("Game Over", 100, 200);
+        	 g2d.drawString("Score: " + (_brickDeleter.getNumberOfDeletedRows() * 100), 100, 250);
         }
     }
     /**
@@ -146,6 +160,12 @@ public class InGameManager implements KeyListener, IBrickMoveListener
 	public boolean moveAttempt(Brick brick, Position singlePosition, Position moveVector) 
 	{
 		return true;
+	}
+
+	@Override
+	public void gameOver() 
+	{
+		_runGame = false;
 	}
 
 }

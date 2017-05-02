@@ -2,7 +2,6 @@ package gameLib;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-
 import gameLib.IBrickMoveListener;
 
 /**
@@ -12,6 +11,7 @@ import gameLib.IBrickMoveListener;
 public class BrickField implements IBrickMoveListener
 {
 	private LinkedList<Brick> _brickList;
+	private ArrayList<IGameOverListener> _gameOverListeners;
 	
 	Position _fieldStartPosition;
 	int _fieldWidth;
@@ -31,8 +31,13 @@ public class BrickField implements IBrickMoveListener
 		_fieldWidth = fieldWidth;
 		_fieldHeight = fieldHeight;
 		_brickList = new LinkedList<Brick>();
+		_gameOverListeners = new ArrayList<IGameOverListener>();
 	}
 	
+	public void registerGameOverListener(IGameOverListener listener)
+	{
+		_gameOverListeners.add(listener);
+	}
 	
 	/**
 	 * this method returns given brick does collide if it would move
@@ -57,18 +62,13 @@ public class BrickField implements IBrickMoveListener
 				{
 					if(brick != otherBrick)
 					{
-						BoundingBox otherBox = 
-								new BoundingBox(otherPosition.x, otherPosition.y, Brick.getRectSize(), Brick.getRectSize());
-							
-						boolean collision = movedBox.checkCollision(otherBox);
-						if(collision)
+						if(checkMovedBoxWithOther(movedBox, otherPosition) == false)
 						{
 							return false;
 						}
 					}
 					
 				}
-				
 			}
 			
 			// out of map/field?
@@ -94,23 +94,15 @@ public class BrickField implements IBrickMoveListener
 		{
 			for(Position otherPosition : otherBrick.getPositions())
 			{
-				//if(brick != otherBrick)
-				//{
-					// collision tests with same tile does not make sense
-					if(otherPosition.x != singlePosition.x || otherPosition.y != singlePosition.y) 
+				// collision tests with same tile does not make sense
+				if(otherPosition.x != singlePosition.x || otherPosition.y != singlePosition.y) 
+				{
+					if(checkMovedBoxWithOther(movedBox, otherPosition) == false)
 					{
-						BoundingBox otherBox = 
-								new BoundingBox(otherPosition.x, otherPosition.y, Brick.getRectSize(), Brick.getRectSize());
-						
-						boolean collision = movedBox.checkCollision(otherBox);
-						if(collision)
-						{
-							return false;
-						}
+						return false;
 					}
-				//}
+				}
 			}
-			
 		}
 		
 		// out of map/field?
@@ -139,6 +131,35 @@ public class BrickField implements IBrickMoveListener
 		return true;
 	}
 	 
+	/**
+	 *  internal helper method it checks the moved box with other box(not moved already in field)
+	 **/
+	private boolean checkMovedBoxWithOther(BoundingBox movedBox, Position otherPosition)
+	{
+		BoundingBox otherBox = 
+				new BoundingBox(otherPosition.x, otherPosition.y, Brick.getRectSize(), Brick.getRectSize());
+		
+		boolean collision = movedBox.checkCollision(otherBox);
+		
+		if(collision)
+		{
+			// check if top line is also touched and inform listener that this game is over
+			Position pos = new Position(movedBox.getX(), movedBox.getY());
+			if(pos.y < _fieldStartPosition.y)
+			{;
+				for(IGameOverListener listener : _gameOverListeners)
+				{
+					listener.gameOver();
+				}
+			}
+			
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
 	
 	/**
 	 * if brick appeared we make an entry in our map
@@ -178,11 +199,7 @@ public class BrickField implements IBrickMoveListener
 				{
 					for(Position otherPosition : otherBrick.getPositions())
 					{
-						BoundingBox otherBox = 
-								new BoundingBox(otherPosition.x, otherPosition.y, Brick.getRectSize(), Brick.getRectSize());
-						
-						boolean collision = movedBox.checkCollision(otherBox);
-						if(collision)
+						if(checkMovedBoxWithOther(movedBox, otherPosition) == false)
 						{
 							return false;
 						}
